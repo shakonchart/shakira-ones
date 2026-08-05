@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -142,11 +142,22 @@
   .tabbtn:hover{ color:var(--text); border-color:var(--blue); }
   .tabbtn.active{ background:var(--blue); border-color:var(--blue); color:#fff; }
 
-  #search{
-    width:100%; background:var(--panel); border:1px solid var(--line); color:var(--text);
-    padding:12px 16px; margin-bottom:22px; font-family:'Work Sans', sans-serif; font-size:14px;
+  /* Controls layout */
+  #controls {
+    display: flex; gap: 10px; margin-bottom: 22px; flex-wrap: wrap;
+  }
+  #search {
+    flex: 1; min-width: 200px; background: var(--panel); border: 1px solid var(--line); color: var(--text);
+    padding: 12px 16px; font-family: 'Work Sans', sans-serif; font-size: 14px;
   }
   #search::placeholder{color:var(--muted);}
+  
+  #sort-select {
+    background: var(--panel); border: 1px solid var(--line); color: var(--text);
+    padding: 12px 16px; font-family: 'Work Sans', sans-serif; font-size: 14px; outline: none;
+    cursor: pointer; min-width: 180px;
+  }
+  #sort-select option { background: var(--bg); }
 
   #content{min-height:120px;}
 
@@ -179,6 +190,9 @@
   tbody tr:hover{background:var(--panel2);}
   td.muted{color:var(--muted);}
   td.wksbold{font-weight:700;}
+  
+  /* Centering modifier */
+  th.centered, td.centered { text-align: center !important; }
 
   .group-header{ display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:8px 16px; margin:26px 0 10px; }
   .group-header:first-child{margin-top:0;}
@@ -210,50 +224,58 @@
 <body>
 
 <div class="langbar">
-  <button id="lang-es" class="active">ES</button>
-  <button id="lang-en">EN</button>
+  <button id="lang-es">ES</button>
+  <button id="lang-en" class="active">EN</button>
 </div>
 
 <!-- HOME -->
 <section id="view-home">
   <h1 class="title-shakira">SHAKIRA</h1>
-  <p class="subtitle" id="home-subtitle">base de datos no oficial</p>
+  <p class="subtitle" id="home-subtitle">unofficial database</p>
   <div class="home-buttons">
     <button class="homebtn" id="btn-chart-history">
       <span id="lbl-chart-history">Chart History</span>
     </button>
     <button class="homebtn soon">
       <span id="lbl-boxscore">Boxscore History</span>
-      <span class="tag" id="lbl-soon1">Próximamente</span>
+      <span class="tag" id="lbl-soon1">Coming soon</span>
     </button>
     <button class="homebtn soon">
       <span id="lbl-certs">Certifications</span>
-      <span class="tag" id="lbl-soon2">Próximamente</span>
+      <span class="tag" id="lbl-soon2">Coming soon</span>
     </button>
   </div>
   <div class="home-footer" id="home-footer">
     <p class="home-credit" id="home-credit">By ShakOnChart</p>
     <a class="x-follow" href="https://x.com/ShakOnChart" target="_blank" rel="noopener">
       <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M18.9 2H22l-7.6 8.7L23.3 22h-7l-5.5-7.2L4.5 22H1.4l8.1-9.3L1 2h7.2l5 6.6L18.9 2zm-1.2 18h1.9L7.4 4H5.4l12.3 16z"/></svg>
-      <span id="lbl-follow">Sígueme en</span>
+      <span id="lbl-follow">Follow on</span>
     </a>
   </div>
 </section>
 
 <!-- CHART HISTORY -->
 <section id="view-history" class="hidden">
-  <button class="backlink" id="btn-back-home">← <span id="lbl-back-home">Inicio</span></button>
+  <button class="backlink" id="btn-back-home">← <span id="lbl-back-home">Home</span></button>
   <h1 class="pagetitle" id="lbl-chart-history-title">Chart History</h1>
 
   <div class="stats" id="stats"></div>
 
   <div class="tabs">
-    <button class="tabbtn" data-tab="paises" id="tab-paises">Países</button>
-    <button class="tabbtn" data-tab="canciones" id="tab-canciones">Canciones</button>
-    <button class="tabbtn" data-tab="albumes" id="tab-albumes">Álbumes</button>
+    <button class="tabbtn active" data-tab="paises" id="tab-paises">Countries</button>
+    <button class="tabbtn" data-tab="canciones" id="tab-canciones">Songs</button>
+    <button class="tabbtn" data-tab="albumes" id="tab-albumes">Albums</button>
+    <button class="tabbtn" data-tab="dvds" id="tab-dvds">DVDs</button>
   </div>
 
-  <input id="search" type="text">
+  <div id="controls">
+    <input id="search" type="text">
+    <select id="sort-select">
+      <option value="alpha" id="sort-alpha">Alphabetical</option>
+      <option value="year" id="sort-year">Peak year</option>
+      <option value="entries" id="sort-entries">Number of entries</option>
+    </select>
+  </div>
 
   <div id="content"></div>
   <p class="count" id="count"></p>
@@ -271,38 +293,40 @@ const T = {
     subtitle_pre: "base de datos no oficial", subtitle_by: "By ShakOnChart",
     chartHistory: "Chart History", boxscore: "Boxscore History", certs: "Certifications", soon: "Próximamente",
     back: "Inicio", backTab: "Volver",
-    tabPaises: "Países", tabCanciones: "Canciones", tabAlbumes: "Álbumes",
-    searchPh: {paises:"Buscar país…", canciones:"Buscar canción…", albumes:"Buscar álbum…"},
+    tabPaises: "Países", tabCanciones: "Canciones", tabAlbumes: "Álbumes", tabDvds: "DVDs",
+    searchPh: {paises:"Buscar país…", canciones:"Buscar canción…", albumes:"Buscar álbum…", dvds:"Buscar DVD…"},
     stat1: "Nº1 totales", stat2: "Semanas en Nº1", stat3: "Canciones/álbumes/DVDs charteados",
     stat4: "Semanas totales en lista", stat5: "Países en la base",
     follow: "Sígueme en",
     colTitle:"Título", colCountry:"País", colChart:"Lista", colPeak:"Peak", colWksPeak:"Sem. en peak",
-    colDate:"Fecha peak", colWksChart:"Sem. en lista",
+    colDate:"", colWksChart:"Sem. en lista",
     groupSongs:"Canciones", groupAlbums:"Álbumes", groupOther:"DVDs",
     empty:"No hay resultados.", results:"resultado",
-    footer:"Datos recopilados por un fan, país por país."
+    footer:"Datos recopilados por un fan, país por país.",
+    sortAlpha: "Abecedario", sortYear: "Año de peak", sortEntries: "Cantidad de entradas"
   },
   en: {
     subtitle_pre: "unofficial database", subtitle_by: "By ShakOnChart",
     chartHistory: "Chart History", boxscore: "Boxscore History", certs: "Certifications", soon: "Coming soon",
     back: "Home", backTab: "Back",
-    tabPaises: "Countries", tabCanciones: "Songs", tabAlbumes: "Albums",
-    searchPh: {paises:"Search country…", canciones:"Search song…", albumes:"Search album…"},
+    tabPaises: "Countries", tabCanciones: "Songs", tabAlbumes: "Albums", tabDvds: "DVDs",
+    searchPh: {paises:"Search country…", canciones:"Search song…", albumes:"Search album…", dvds:"Search DVD…"},
     stat1: "Total #1s", stat2: "Weeks at #1", stat3: "Songs/albums/DVDs charted",
     stat4: "Total weeks charted", stat5: "Countries in database",
     follow: "Follow on",
     colTitle:"Title", colCountry:"Country", colChart:"Chart", colPeak:"Peak", colWksPeak:"Wks at peak",
-    colDate:"Peak date", colWksChart:"Wks charted",
+    colDate:"", colWksChart:"Wks charted",
     groupSongs:"Songs", groupAlbums:"Albums", groupOther:"DVDs",
     empty:"No results.", results:"result",
-    footer:"Data collected by a fan, country by country."
+    footer:"Data collected by a fan, country by country.",
+    sortAlpha: "Alphabetical", sortYear: "Peak year", sortEntries: "Number of entries"
   }
 };
 const countryNames = { es: { "United States":"Estados Unidos" }, en: { "United States":"United States" } };
 function cname(c){ return (countryNames[lang] && countryNames[lang][c]) || c; }
 
-let lang = "es";
-let tab = "paises";       // paises | canciones | albumes
+let lang = "en";
+let tab = "paises";       // paises | canciones | albumes | dvds
 let detail = null;        // selected country / song / album name, or null
 
 /* ---------------- derived data ---------------- */
@@ -314,6 +338,7 @@ const dvdTitles = [...new Set(data.filter(r=>r.type!=="Single" && r.type!=="Albu
 function rowsForCountry(c){ return data.filter(r=>r.country===c); }
 function rowsForSong(s){ return data.filter(r=>r.song===s && r.type==="Single"); }
 function rowsForAlbum(a){ return data.filter(r=>r.song===a && r.type==="Album"); }
+function rowsForDvd(d){ return data.filter(r=>r.song===d && r.type!=="Single" && r.type!=="Album"); }
 
 /* ---------------- stats ---------------- */
 function renderStats(){
@@ -322,7 +347,6 @@ function renderStats(){
   const ones = chartable.filter(r=>r.peak===1);
   const totalWeeksAtOne = ones.reduce((s,r)=>s+(r.weeksAtPeak||0),0);
   const totalWeeksCharted = chartable.reduce((s,r)=>s+(r.weeksOnChart||0),0);
-  // total distinct titles charted, counted once per type (song/album/dvd), not once per chart entry
   const distinctTitles = songs.length + albums.length + dvdTitles.length;
   document.getElementById('stats').innerHTML = `
     <div class="stat facet"><span class="n">${ones.length}</span><span class="l">${t.stat1}</span></div>
@@ -333,13 +357,52 @@ function renderStats(){
   `;
 }
 
+/* ---------------- sorting helper ---------------- */
+function getYear(dateStr) {
+  if (!dateStr) return 9999;
+  const match = dateStr.match(/\d{4}/);
+  return match ? parseInt(match[0]) : 9999;
+}
+
+function sortList(list, kind) {
+  const sortVal = document.getElementById('sort-select').value;
+  return [...list].sort((a, b) => {
+    if (sortVal === 'alpha') {
+      return a.localeCompare(b);
+    } else if (sortVal === 'year') {
+      let rowsA = kind === 'country' ? rowsForCountry(a) : (kind === 'song' ? rowsForSong(a) : (kind === 'album' ? rowsForAlbum(a) : rowsForDvd(a)));
+      let rowsB = kind === 'country' ? rowsForCountry(b) : (kind === 'song' ? rowsForSong(b) : (kind === 'album' ? rowsForAlbum(b) : rowsForDvd(b)));
+      
+      let yearA = Math.min(...rowsA.map(r => getYear(r.peakDate)));
+      let yearB = Math.min(...rowsB.map(r => getYear(r.peakDate)));
+      
+      if (yearA !== yearB) return yearA - yearB;
+      return a.localeCompare(b);
+    } else if (sortVal === 'entries') {
+      let countA = 0, countB = 0;
+      if (kind === 'country') {
+        countA = rowsForCountry(a).length;
+        countB = rowsForCountry(b).length;
+      } else {
+        let rowsA = kind === 'song' ? rowsForSong(a) : (kind === 'album' ? rowsForAlbum(a) : rowsForDvd(a));
+        let rowsB = kind === 'song' ? rowsForSong(b) : (kind === 'album' ? rowsForAlbum(b) : rowsForDvd(b));
+        countA = new Set(rowsA.map(r => r.country)).size;
+        countB = new Set(rowsB.map(r => r.country)).size;
+      }
+      if (countB !== countA) return countB - countA;
+      return a.localeCompare(b);
+    }
+  });
+}
+
+
 /* ---------------- chart tint helper ---------------- */
-const TINT = "#7fc4ff"; // lighter shade used for the chart(s) with fewer entries
+const TINT = "#7fc4ff";
 function chartBreakdown(rows){
   const counts = {};
   rows.forEach(r=>{ counts[r.chart] = (counts[r.chart]||0)+1; });
   const charts = Object.keys(counts).sort((a,b)=>counts[b]-counts[a]);
-  const secondary = new Set(charts.slice(1)); // everything but the most common chart
+  const secondary = new Set(charts.slice(1));
   return {charts, counts, secondary};
 }
 function chartTagsHTML(charts, counts, secondary){
@@ -358,18 +421,31 @@ function tableHTML(rows, cols, secondary){
     country: t.colCountry, chart: t.colChart, peak: t.colPeak, weeksAtPeak: t.colWksPeak,
     peakDate: t.colDate, weeksOnChart: t.colWksChart, song: t.colTitle
   };
-  let head = cols.map(c=>`<th>${headMap[c]}</th>`).join('');
+  const centerCols = ['peak', 'weeksAtPeak', 'weeksOnChart', 'peakDate'];
+
+  let head = cols.map(c=>{
+    let cls = centerCols.includes(c) ? ' class="centered"' : '';
+    return `<th${cls}>${headMap[c]}</th>`;
+  }).join('');
+  
   let body = rows.map(r=>{
     const isSec = secondary.has(r.chart);
     const trAttr = isSec ? `class="row-secondary" style="--rowtint:${TINT}22"` : '';
     return `<tr ${trAttr}>` + cols.map(c=>{
-      if(c==='peak') return `<td><span class="peakpill ${r.peak===1?'one':'other'}">${r.peak??'—'}</span></td>`;
-      if(c==='country') return `<td>${cname(r.country)}</td>`;
-      if(c==='chart') return `<td class="muted">${r.chart}</td>`;
-      if(c==='weeksOnChart') return `<td class="muted wksbold">${r[c]??'—'}</td>`;
-      if(c==='weeksAtPeak') return `<td class="muted">${r[c]??'—'}</td>`;
-      if(c==='peakDate') return `<td class="muted">${r.peakDate||'—'}</td>`;
-      return `<td>${r[c]??'—'}</td>`;
+      let cls = centerCols.includes(c) ? ' class="centered' : ' class="';
+      if (c === 'chart') cls += ' muted"';
+      else if (c === 'weeksOnChart') cls += ' muted wksbold"';
+      else if (c === 'weeksAtPeak') cls += ' muted"';
+      else cls += '"';
+      cls = cls.trim() === 'class=""' ? '' : cls;
+
+      if(c==='peak') return `<td${cls}><span class="peakpill ${r.peak===1?'one':'other'}">${r.peak??'—'}</span></td>`;
+      if(c==='country') return `<td${cls}>${cname(r.country)}</td>`;
+      if(c==='chart') return `<td${cls}>${r.chart}</td>`;
+      if(c==='weeksOnChart') return `<td${cls}>${r[c]??'—'}</td>`;
+      if(c==='weeksAtPeak') return `<td${cls}>${r[c]??'—'}</td>`;
+      if(c==='peakDate') return `<td${cls}>${r.peakDate ? `<span title="${r.peakDate}" style="cursor:help; font-size:16px;">ℹ️</span>` : '—'}</td>`;
+      return `<td${cls}>${r[c]??'—'}</td>`;
     }).join('') + '</tr>';
   }).join('');
   return `<div class="table-wrap"><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
@@ -378,7 +454,9 @@ function tableHTML(rows, cols, secondary){
 /* ---------------- views ---------------- */
 function renderCountryList(q){
   const t = T[lang];
-  const list = countries.filter(c=>cname(c).toLowerCase().includes(q));
+  let list = countries.filter(c=>cname(c).toLowerCase().includes(q));
+  list = sortList(list, 'country');
+  
   if(list.length===0) return `<div class="empty">${t.empty}</div>`;
   return `<div class="grid-buttons">` + list.map(c=>{
     const n = rowsForCountry(c).length;
@@ -388,7 +466,7 @@ function renderCountryList(q){
 function groupSection(rows, title){
   if(!rows.length) return '';
   const {charts, counts, secondary} = chartBreakdown(rows);
-  const cols = ['song','peak','weeksAtPeak','peakDate','weeksOnChart'];
+  const cols = ['song', 'peak', 'weeksAtPeak', 'weeksOnChart', 'peakDate'];
   return `<div class="group-header"><h3 class="group-title">${title}</h3>${chartTagsHTML(charts, counts, secondary)}</div>`
        + tableHTML(rows, cols, secondary);
 }
@@ -406,9 +484,11 @@ function renderCountryDetail(c){
 }
 function renderTitleList(titles, kind, q){
   const t = T[lang];
-  const list = titles.filter(x=>x.toLowerCase().includes(q));
+  let list = titles.filter(x=>x.toLowerCase().includes(q));
+  list = sortList(list, kind);
+  
   if(list.length===0) return `<div class="empty">${t.empty}</div>`;
-  const rowsFn = kind==='song' ? rowsForSong : rowsForAlbum;
+  const rowsFn = kind==='song' ? rowsForSong : (kind==='album' ? rowsForAlbum : rowsForDvd);
   return `<div class="grid-buttons">` + list.map(x=>{
     const n = new Set(rowsFn(x).map(r=>r.country)).size;
     return `<button class="item-card" data-title="${x}" data-kind="${kind}"><span class="name">${x}</span><span class="meta">${n} ${n===1?'country':'countries'}</span></button>`;
@@ -416,9 +496,9 @@ function renderTitleList(titles, kind, q){
 }
 function renderTitleDetail(title, kind){
   const t = T[lang];
-  const rows = (kind==='song' ? rowsForSong(title) : rowsForAlbum(title));
+  const rows = (kind==='song' ? rowsForSong(title) : (kind==='album' ? rowsForAlbum(title) : rowsForDvd(title)));
   let html = `<button class="backlink" id="btn-back-tab">← ${t.backTab}</button><h1 class="pagetitle">${title}</h1>`;
-  html += tableHTML(rows, ['country','chart','peak','weeksAtPeak','peakDate','weeksOnChart']);
+  html += tableHTML(rows, ['country','chart','peak','weeksAtPeak','weeksOnChart','peakDate']);
   return html;
 }
 
@@ -430,13 +510,16 @@ function render(){
   const content = document.getElementById('content');
 
   if(detail){
+    document.getElementById('controls').classList.add('hidden');
     if(tab==='paises') content.innerHTML = renderCountryDetail(detail);
-    else content.innerHTML = renderTitleDetail(detail, tab==='canciones'?'song':'album');
+    else content.innerHTML = renderTitleDetail(detail, tab==='canciones'?'song':(tab==='albumes'?'album':'dvd'));
     document.getElementById('count').textContent = "";
   } else {
+    document.getElementById('controls').classList.remove('hidden');
     if(tab==='paises') content.innerHTML = renderCountryList(q);
     else if(tab==='canciones') content.innerHTML = renderTitleList(songs, 'song', q);
-    else content.innerHTML = renderTitleList(albums, 'album', q);
+    else if(tab==='albumes') content.innerHTML = renderTitleList(albums, 'album', q);
+    else content.innerHTML = renderTitleList(dvdTitles, 'dvd', q);
     const n = content.querySelectorAll('.item-card').length;
     document.getElementById('count').textContent = n + " " + t.results + (n===1?"":"s");
   }
@@ -470,7 +553,11 @@ function applyStaticText(){
   document.getElementById('tab-paises').textContent = t.tabPaises;
   document.getElementById('tab-canciones').textContent = t.tabCanciones;
   document.getElementById('tab-albumes').textContent = t.tabAlbumes;
+  document.getElementById('tab-dvds').textContent = t.tabDvds;
   document.getElementById('footer-note').textContent = t.footer;
+  document.getElementById('sort-alpha').textContent = t.sortAlpha;
+  document.getElementById('sort-year').textContent = t.sortYear;
+  document.getElementById('sort-entries').textContent = t.sortEntries;
 }
 
 /* ---------------- events ---------------- */
@@ -506,6 +593,7 @@ function setTab(newTab){
 }
 
 document.getElementById('search').addEventListener('input', render);
+document.getElementById('sort-select').addEventListener('change', render);
 
 applyStaticText();
 </script>
