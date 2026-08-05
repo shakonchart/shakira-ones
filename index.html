@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shakira — Base de datos de charts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Work+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#14131a;
+    --panel:#1e1b26;
+    --panel-2:#262233;
+    --line:rgba(245,241,232,0.12);
+    --text:#f5f1e8;
+    --muted:#b3a9c4;
+    --magenta:#e93d82;
+    --gold:#f2b705;
+    --teal:#2ec4b6;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(circle at 15% -10%, rgba(233,61,130,0.18), transparent 45%),
+      radial-gradient(circle at 100% 0%, rgba(242,183,5,0.12), transparent 40%),
+      var(--ink);
+    color:var(--text);
+    font-family:'Work Sans', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--teal);}
+
+  header.hero{
+    padding:64px 24px 40px;
+    max-width:1120px;
+    margin:0 auto;
+    border-bottom:1px solid var(--line);
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:var(--gold);
+    margin:0 0 18px;
+  }
+  .flapboard{ display:flex; flex-wrap:wrap; gap:8px; margin:0 0 20px; }
+  .flap{
+    font-family:'Anton', sans-serif;
+    font-size:clamp(38px, 8vw, 78px);
+    line-height:1;
+    background:linear-gradient(180deg, var(--panel-2), var(--panel));
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:6px 4px 2px;
+    min-width:0.9em;
+    text-align:center;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+    position:relative;
+    animation: flapIn .5s ease backwards;
+  }
+  .flap::after{ content:""; position:absolute; left:0; right:0; top:calc(50% - .5px); height:1px; background:rgba(0,0,0,0.5); }
+  .flap.accent{ color:var(--magenta); }
+  .flap.accent2{ color:var(--gold); }
+  @keyframes flapIn{ from{ transform: rotateX(90deg); opacity:0; } to{ transform: rotateX(0deg); opacity:1; } }
+  .flap:nth-child(1){animation-delay:.02s} .flap:nth-child(2){animation-delay:.06s}
+  .flap:nth-child(3){animation-delay:.1s} .flap:nth-child(4){animation-delay:.14s}
+  .flap:nth-child(5){animation-delay:.18s} .flap:nth-child(6){animation-delay:.22s}
+  .flap:nth-child(7){animation-delay:.26s}
+
+  .hero p.lede{ max-width:660px; color:var(--muted); font-size:16px; line-height:1.6; margin:0 0 28px; }
+  .stats{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(150px,1fr)); gap:1px;
+    background:var(--line); border:1px solid var(--line); border-radius:10px; overflow:hidden;
+  }
+  .stat{ background:var(--panel); padding:16px 18px; }
+  .stat .n{ font-family:'Anton', sans-serif; font-size:32px; color:var(--gold); display:block; }
+  .stat .l{ font-size:12.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; }
+
+  /* view toggle */
+  .viewtoggle{
+    max-width:1120px; margin:36px auto 0; padding:0 24px;
+    display:flex; gap:8px;
+  }
+  .viewtoggle button{
+    font-family:'JetBrains Mono', monospace;
+    font-size:13px; letter-spacing:.03em; text-transform:uppercase;
+    background:var(--panel); border:1px solid var(--line); color:var(--muted);
+    padding:11px 18px; border-radius:8px 8px 0 0; cursor:pointer; transition:.15s ease;
+  }
+  .viewtoggle button.active{ background:var(--panel-2); color:var(--text); border-color:var(--teal); border-bottom-color:var(--panel-2); }
+
+  .controls{
+    max-width:1120px; margin:0 auto; padding:14px 24px 0;
+    display:flex; flex-wrap:wrap; gap:10px; align-items:center;
+    background:var(--panel-2); border:1px solid var(--line); border-radius:0 10px 10px 10px;
+  }
+  .controls-inner{ display:flex; flex-wrap:wrap; gap:10px; padding-bottom:14px; width:100%; }
+  #search{
+    flex:1 1 200px; background:var(--panel); border:1px solid var(--line); color:var(--text);
+    padding:10px 14px; border-radius:8px; font-family:'Work Sans', sans-serif; font-size:14px;
+  }
+  #search::placeholder{color:var(--muted);}
+  select{
+    background:var(--panel); border:1px solid var(--line); color:var(--text);
+    padding:10px 12px; border-radius:8px; font-family:'Work Sans', sans-serif; font-size:14px;
+  }
+  .chip{
+    font-family:'JetBrains Mono', monospace; font-size:12px; letter-spacing:.03em; text-transform:uppercase;
+    background:var(--panel); border:1px solid var(--line); color:var(--muted);
+    padding:9px 14px; border-radius:999px; cursor:pointer; transition:.15s ease; white-space:nowrap;
+  }
+  .chip:hover{border-color:var(--teal); color:var(--text);}
+  .chip.active{ background:var(--magenta); border-color:var(--magenta); color:#fff; }
+
+  main{ max-width:1120px; margin:0 auto; padding:20px 24px 80px; }
+  .table-wrap{ border:1px solid var(--line); border-radius:12px; overflow:hidden; background:var(--panel); overflow-x:auto; }
+  table{ width:100%; border-collapse:collapse; font-size:14px; min-width:720px; }
+  thead th{
+    text-align:left; font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:.05em;
+    text-transform:uppercase; color:var(--gold); padding:13px 14px; border-bottom:1px solid var(--line);
+    cursor:pointer; user-select:none; white-space:nowrap;
+  }
+  thead th:hover{color:#fff;}
+  thead th .arrow{opacity:.5; font-size:10px; margin-left:4px;}
+  tbody td{ padding:11px 14px; border-bottom:1px solid var(--line); vertical-align:top; }
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover{background:var(--panel-2);}
+  td.song{font-weight:600; min-width:170px;}
+  td.muted{color:var(--muted);}
+  .peakpill{
+    display:inline-flex; align-items:center; justify-content:center; min-width:26px; height:22px;
+    font-family:'JetBrains Mono', monospace; font-size:12px; font-weight:700; padding:0 6px; border-radius:5px;
+  }
+  .peakpill.one{ background:rgba(242,183,5,0.18); color:var(--gold); }
+  .peakpill.other{ background:rgba(179,169,196,0.12); color:var(--muted); }
+  .typepill{
+    font-family:'JetBrains Mono', monospace; font-size:10.5px; text-transform:uppercase;
+    padding:2px 7px; border-radius:5px; background:rgba(46,196,182,0.15); color:var(--teal);
+  }
+  .empty{ padding:40px 16px; text-align:center; color:var(--muted); }
+  .count{ color:var(--muted); font-size:13px; margin:14px 2px 0; font-family:'JetBrains Mono', monospace; }
+
+  footer{ max-width:1120px; margin:0 auto; padding:0 24px 60px; color:var(--muted); font-size:13px; line-height:1.7; }
+  footer h3{ color:var(--text); font-size:14px; margin-bottom:8px; }
+  footer ul{margin:0 0 20px; padding-left:18px;}
+
+  @media (max-width:640px){
+    header.hero{padding:44px 18px 28px;}
+    .viewtoggle, .controls, main, footer{padding-left:18px; padding-right:18px;}
+    .controls{border-radius:0 10px 10px 0;}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <p class="eyebrow">Base de datos no oficial · listas musicales</p>
+  <div class="flapboard" aria-label="Shakira">
+    <span class="flap">S</span><span class="flap">H</span><span class="flap">A</span>
+    <span class="flap accent">K</span><span class="flap">I</span><span class="flap">R</span>
+    <span class="flap accent2">A</span>
+  </div>
+  <p class="lede">Historial de Shakira en listas oficiales de todo el mundo — posición máxima, semanas en el puesto y semanas totales en el chart. Cambia entre la vista de Nº1 y el historial completo.</p>
+  <div class="stats" id="stats"></div>
+</header>
+
+<div class="viewtoggle">
+  <button class="active" data-view="ones">Solo Nº1</button>
+  <button data-view="all">Historial completo</button>
+</div>
+
+<div class="controls">
+  <div class="controls-inner">
+    <input id="search" type="text" placeholder="Buscar canción, álbum, país o lista…">
+    <select id="countryFilter"><option value="all">Todos los países</option></select>
+    <select id="typeFilter"><option value="all">Todos los tipos</option></select>
+  </div>
+</div>
+
+<main>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th data-key="song">Título <span class="arrow">↕</span></th>
+          <th data-key="country">País <span class="arrow">↕</span></th>
+          <th data-key="chart">Lista <span class="arrow">↕</span></th>
+          <th data-key="peak">Peak <span class="arrow">↕</span></th>
+          <th data-key="weeksAtPeak">Sem. en peak <span class="arrow">↕</span></th>
+          <th data-key="peakDate">Fecha peak <span class="arrow">↕</span></th>
+          <th data-key="weeksOnChart">Sem. en lista <span class="arrow">↕</span></th>
+          <th data-key="type">Tipo <span class="arrow">↕</span></th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <div id="empty" class="empty" style="display:none;">No hay resultados para esa búsqueda.</div>
+  </div>
+  <p class="count" id="count"></p>
+</main>
+
+<footer>
+  <h3>Sobre esta base de datos</h3>
+  <p>Datos recopilados por Jose. Por ahora cubre Argentina, Australia, Austria y Estados Unidos — se irán sumando más países a medida que se recopilen. "Vista completa" muestra cada entrada en cada lista (single, álbum o DVD) con su posición máxima; "Solo Nº1" filtra únicamente las que llegaron al primer puesto.</p>
+</footer>
+
+<script>
+const data = [{"song": "Whenever, Wherever", "country": "Austria", "chart": "Ö3 Austria Top 40", "peak": 1, "weeksAtPeak": 7, "peakDate": "17 feb 2002", "weeksOnChart": 30, "type": "Single"}, {"song": "Dai Dai", "country": "Austria", "chart": "Ö3 Austria Top 40", "peak": 1, "weeksAtPeak": 6, "peakDate": "26 jun 2026", "weeksOnChart": 10, "type": "Single"}, {"song": "Waka Waka", "country": "Austria", "chart": "Ö3 Austria Top 40", "peak": 1, "weeksAtPeak": 6, "peakDate": "25 jun 2010", "weeksOnChart": 71, "type": "Single"}, {"song": "Underneath Your Clothes", "country": "Austria", "chart": "Ö3 Austria Top 40", "peak": 1, "weeksAtPeak": 1, "peakDate": "14 jul 2002", "weeksOnChart": 34, "type": "Single"}, {"song": "Hips Don't Lie", "country": "Austria", "chart": "Ö3 Austria Top 40", "peak": 2, "weeksAtPeak": 8, "peakDate": "5 may 2006", "weeksOnChart": 46, "type": "Single"}, {"song": "Beautiful Liar", "country": "Austria", "chart": "Ö3 Austria Top 40", "peak": 2, "weeksAtPeak": 1, "peakDate": "18 may 2007", "weeksOnChart": 24, "type": "Single"}, {"song": "Loca", "country": "Austria", "chart": "Ö3 Austria Top 40", "peak": 2, "weeksAtPeak": 1, "peakDate": "5 nov 2010", "weeksOnChart": 20, "type": "Single"}, {"song": "La Tortura", "country": "Austria", "chart": "Ö3 Austria Top 40", "peak": 3, "weeksAtPeak": 6, "peakDate": "19 jun 2005", "weeksOnChart": 27, "type": "Single"}, {"song": "She Wolf", "country": "Austria", "chart": "Ö3 Austria Top 40", "peak": 3, "weeksAtPeak": 1, "peakDate": "18 sep 2009", "weeksOnChart": 19, "type": "Single"}, {"song": "Can't Remember To Forget You", "country": "Austria", "chart": "Ö3 Austria Top 40", "peak": 4, "weeksAtPeak": 1, "peakDate": "21 feb 2014", "weeksOnChart": 16, "type": "Single"}, {"song": "Don't Bother", "country": "Austria", "chart": "Ö3 Austria Top 40", "peak": 6, "weeksAtPeak": 1, "peakDate": "2 dic 2005", "weeksOnChart": 24, "type": "Single"}, {"song": "Rabiosa", "country": "Austria", "chart": "Ö3 Austria Top 40", "peak": 6, "weeksAtPeak": 1, "peakDate": "17 jun 2011", "weeksOnChart": 17, "type": "Single"}, {"song": "Illegal", "country": "Austria", "chart": "Ö3 Austria Top 40", "peak": 9, "weeksAtPeak": 1, "peakDate": "8 dic 2006", "weeksOnChart": 18, "type": "Single"}, {"song": "Gypsy", "country": "Austria", "chart": "Ö3 Austria Top 40", "peak": 11, "weeksAtPeak": 1, "peakDate": "9 abr 2010", "weeksOnChart": 10, "type": "Single"}, {"song": "Objection (Tango)", "country": "Austria", "chart": "Ö3 Austria Top 40", "peak": 12, "weeksAtPeak": 1, "peakDate": "1 dic 2002", "weeksOnChart": 21, "type": "Single"}, {"song": "DON'T YOU WORRY", "country": "Austria", "chart": "Ö3 Austria Top 40", "peak": 12, "weeksAtPeak": 1, "peakDate": "20 sep 2022", "weeksOnChart": 22, "type": "Single"}, {"song": "Dare (La La La)", "country": "Austria", "chart": "Ö3 Austria Top 40", "peak": 14, "weeksAtPeak": 1, "peakDate": "2 may 2014", "weeksOnChart": 22, "type": "Single"}, {"song": "BZRP Music Sessions, Vol. 53", "country": "Austria", "chart": "Ö3 Austria Top 40", "peak": 16, "weeksAtPeak": 1, "peakDate": "24 ene 2023", "weeksOnChart": 6, "type": "Single"}, {"song": "Get It Started", "country": "Austria", "chart": "Ö3 Austria Top 40", "peak": 17, "weeksAtPeak": 1, "peakDate": "20 jul 2012", "weeksOnChart": 5, "type": "Single"}, {"song": "The One", "country": "Austria", "chart": "Ö3 Austria Top 40", "peak": 21, "weeksAtPeak": 1, "peakDate": "20 abr 2003", "weeksOnChart": 15, "type": "Single"}, {"song": "Did It Again", "country": "Austria", "chart": "Ö3 Austria Top 40", "peak": 34, "weeksAtPeak": 1, "peakDate": "11 dic 2009", "weeksOnChart": 4, "type": "Single"}, {"song": "Try Everything", "country": "Austria", "chart": "Ö3 Austria Top 40", "peak": 39, "weeksAtPeak": 1, "peakDate": "25 mar 2016", "weeksOnChart": 5, "type": "Single"}, {"song": "Chantaje", "country": "Austria", "chart": "Ö3 Austria Top 40", "peak": 41, "weeksAtPeak": 1, "peakDate": "10 feb 2017", "weeksOnChart": 8, "type": "Single"}, {"song": "Laundry Service", "country": "Austria", "chart": "Ö3 Austria Top Albums", "peak": 1, "weeksAtPeak": 5, "peakDate": "17 feb 2002", "weeksOnChart": 71, "type": "Album"}, {"song": "Fijación Oral, Vol. 1", "country": "Austria", "chart": "Ö3 Austria Top Albums", "peak": 2, "weeksAtPeak": 2, "peakDate": "3 jul 2005", "weeksOnChart": 23, "type": "Album"}, {"song": "Sale El Sol", "country": "Austria", "chart": "Ö3 Austria Top Albums", "peak": 3, "weeksAtPeak": 2, "peakDate": "29 oct 2010", "weeksOnChart": 44, "type": "Album"}, {"song": "SHAKIRA.", "country": "Austria", "chart": "Ö3 Austria Top Albums", "peak": 3, "weeksAtPeak": 1, "peakDate": "4 abr 2014", "weeksOnChart": 15, "type": "Album"}, {"song": "She Wolf", "country": "Austria", "chart": "Ö3 Austria Top Albums", "peak": 4, "weeksAtPeak": 1, "peakDate": "23 oct 2009", "weeksOnChart": 15, "type": "Album"}, {"song": "Oral Fixation, Vol. 2", "country": "Austria", "chart": "Ö3 Austria Top Albums", "peak": 6, "weeksAtPeak": 2, "peakDate": "9 jun 2006", "weeksOnChart": 45, "type": "Album"}, {"song": "Las Mujeres Ya No Lloran", "country": "Austria", "chart": "Ö3 Austria Top Albums", "peak": 8, "weeksAtPeak": 1, "peakDate": "2 abr 2024", "weeksOnChart": 2, "type": "Album"}, {"song": "Live & Off The Record", "country": "Austria", "chart": "Ö3 Austria Top Albums", "peak": 9, "weeksAtPeak": 1, "peakDate": "11 abr 2004", "weeksOnChart": 9, "type": "Album"}, {"song": "El Dorado", "country": "Austria", "chart": "Ö3 Austria Top Albums", "peak": 10, "weeksAtPeak": 1, "peakDate": "9 jun 2017", "weeksOnChart": 4, "type": "Album"}, {"song": "MTV Unplugged", "country": "Austria", "chart": "Ö3 Austria Top Albums", "peak": 55, "weeksAtPeak": 1, "peakDate": "18 ago 2002", "weeksOnChart": 5, "type": "Album"}, {"song": "Divas Las Vegas", "country": "Austria", "chart": "Ö3 Austria Top Albums", "peak": 59, "weeksAtPeak": 1, "peakDate": "15 dic 2002", "weeksOnChart": 7, "type": "Album"}, {"song": "Live & Off The Record", "country": "Austria", "chart": "Ö3 Austria Top DVDs", "peak": 3, "weeksAtPeak": 2, "peakDate": "11 abr 2004", "weeksOnChart": 5, "type": "DVD"}, {"song": "Oral Fixation Tour", "country": "Austria", "chart": "Ö3 Austria Top DVDs", "peak": 5, "weeksAtPeak": 1, "peakDate": "30 nov 2007", "weeksOnChart": 3, "type": "DVD"}, {"song": "Live From Paris", "country": "Austria", "chart": "Ö3 Austria Top DVDs", "peak": 6, "weeksAtPeak": 1, "peakDate": "16 dic 2011", "weeksOnChart": 6, "type": "DVD"}, {"song": "Hips Don't Lie", "country": "Australia", "chart": "ARIA Top 50 Singles", "peak": 1, "weeksAtPeak": 9, "peakDate": "25 jun 2006", "weeksOnChart": 24, "type": "Single"}, {"song": "Whenever, Wherever", "country": "Australia", "chart": "ARIA Top 50 Singles", "peak": 1, "weeksAtPeak": 6, "peakDate": "10 feb 2002", "weeksOnChart": 20, "type": "Single"}, {"song": "Underneath Your Clothes", "country": "Australia", "chart": "ARIA Top 50 Singles", "peak": 1, "weeksAtPeak": 1, "peakDate": "26 may 2002", "weeksOnChart": 20, "type": "Single"}, {"song": "Objection (Tango)", "country": "Australia", "chart": "ARIA Top 50 Singles", "peak": 2, "weeksAtPeak": 3, "peakDate": "15 sep 2002", "weeksOnChart": 18, "type": "Single"}, {"song": "Beautiful Liar", "country": "Australia", "chart": "ARIA Top 50 Singles", "peak": 5, "weeksAtPeak": 1, "peakDate": "29 abr 2007", "weeksOnChart": 16, "type": "Single"}, {"song": "Dai Dai", "country": "Australia", "chart": "ARIA Top 50 Singles", "peak": 10, "weeksAtPeak": 1, "peakDate": "3 ago 2026", "weeksOnChart": 4, "type": "Single"}, {"song": "The One", "country": "Australia", "chart": "ARIA Top 50 Singles", "peak": 16, "weeksAtPeak": 1, "peakDate": "26 ene 2003", "weeksOnChart": 8, "type": "Single"}, {"song": "She Wolf", "country": "Australia", "chart": "ARIA Top 50 Singles", "peak": 18, "weeksAtPeak": 1, "peakDate": "6 sep 2009", "weeksOnChart": 10, "type": "Single"}, {"song": "Can't Remember To Forget You", "country": "Australia", "chart": "ARIA Top 50 Singles", "peak": 18, "weeksAtPeak": 1, "peakDate": "16 feb 2014", "weeksOnChart": 13, "type": "Single"}, {"song": "Don't Bother", "country": "Australia", "chart": "ARIA Top 50 Singles", "peak": 30, "weeksAtPeak": 1, "peakDate": "4 dic 2005", "weeksOnChart": 9, "type": "Single"}, {"song": "Get It Started", "country": "Australia", "chart": "ARIA Top 50 Singles", "peak": 31, "weeksAtPeak": 1, "peakDate": "27 jul 2012", "weeksOnChart": 8, "type": "Single"}, {"song": "Waka Waka (This Time For Africa)", "country": "Australia", "chart": "ARIA Top 50 Singles", "peak": 32, "weeksAtPeak": 1, "peakDate": "11 jul 2010", "weeksOnChart": 24, "type": "Single"}, {"song": "Zoo", "country": "Australia", "chart": "ARIA Top 50 Singles", "peak": 56, "weeksAtPeak": 1, "peakDate": "26 ene 2026", "weeksOnChart": 4, "type": "Single"}, {"song": "Try Everything", "country": "Australia", "chart": "ARIA Top 50 Singles", "peak": 57, "weeksAtPeak": 1, "peakDate": "11 jul 2016", "weeksOnChart": 11, "type": "Single"}, {"song": "BZRP Music Sessions, Vol. 53", "country": "Australia", "chart": "ARIA Top 50 Singles", "peak": 100, "weeksAtPeak": 1, "peakDate": "20 ene 2023", "weeksOnChart": 1, "type": "Single"}, {"song": "Laundry Service", "country": "Australia", "chart": "ARIA Top Albums", "peak": 1, "weeksAtPeak": 2, "peakDate": "12 may 2002", "weeksOnChart": 69, "type": "Album"}, {"song": "SHAKIRA.", "country": "Australia", "chart": "ARIA Top Albums", "peak": 8, "weeksAtPeak": 1, "peakDate": "13 abr 2014", "weeksOnChart": 3, "type": "Album"}, {"song": "Oral Fixation, Vol. 2 (Re-issue)", "country": "Australia", "chart": "ARIA Top Albums", "peak": 9, "weeksAtPeak": 1, "peakDate": "30 jul 2006", "weeksOnChart": 14, "type": "Album"}, {"song": "Oral Fixation, Vol. 2", "country": "Australia", "chart": "ARIA Top Albums", "peak": 60, "weeksAtPeak": 1, "peakDate": "5 dic 2005", "weeksOnChart": 7, "type": "Album"}, {"song": "El Dorado", "country": "Australia", "chart": "ARIA Top Albums", "peak": 93, "weeksAtPeak": 1, "peakDate": "2 jun 2017", "weeksOnChart": 1, "type": "Album"}, {"song": "Te Felicito", "country": "Argentina", "chart": "Billboard Argentina Hot 100", "peak": 1, "weeksAtPeak": 4, "peakDate": "18 jun 2022", "weeksOnChart": 48, "type": "Single"}, {"song": "BZRP Music Sessions, Vol. 53", "country": "Argentina", "chart": "Billboard Argentina Hot 100", "peak": 1, "weeksAtPeak": 4, "peakDate": "21 ene 2023", "weeksOnChart": 40, "type": "Single"}, {"song": "Dai Dai", "country": "Argentina", "chart": "Billboard Argentina Hot 100", "peak": 1, "weeksAtPeak": 1, "peakDate": "11 jul 2026", "weeksOnChart": 10, "type": "Single"}, {"song": "TQG", "country": "Argentina", "chart": "Billboard Argentina Hot 100", "peak": 2, "weeksAtPeak": 6, "peakDate": "4 mar 2023", "weeksOnChart": 49, "type": "Single"}, {"song": "Soltera", "country": "Argentina", "chart": "Billboard Argentina Hot 100", "peak": 7, "weeksAtPeak": 1, "peakDate": "2 nov 2024", "weeksOnChart": 31, "type": "Single"}, {"song": "Monotonia", "country": "Argentina", "chart": "Billboard Argentina Hot 100", "peak": 7, "weeksAtPeak": 2, "peakDate": "29 oct 2022", "weeksOnChart": 25, "type": "Single"}, {"song": "Besame", "country": "Argentina", "chart": "Billboard Argentina Hot 100", "peak": 9, "weeksAtPeak": 1, "peakDate": "12 jul 2025", "weeksOnChart": 19, "type": "Single"}, {"song": "Acrostico", "country": "Argentina", "chart": "Billboard Argentina Hot 100", "peak": 11, "weeksAtPeak": 1, "peakDate": "27 may 2023", "weeksOnChart": 17, "type": "Single"}, {"song": "Clandestino", "country": "Argentina", "chart": "Billboard Argentina Hot 100", "peak": 13, "weeksAtPeak": 1, "peakDate": "10 nov 2018", "weeksOnChart": 23, "type": "Single"}, {"song": "Me Gusta", "country": "Argentina", "chart": "Billboard Argentina Hot 100", "peak": 18, "weeksAtPeak": 1, "peakDate": "4 abr 2020", "weeksOnChart": 28, "type": "Single"}, {"song": "Copa Vacia", "country": "Argentina", "chart": "Billboard Argentina Hot 100", "peak": 36, "weeksAtPeak": 1, "peakDate": "8 jul 2023", "weeksOnChart": 18, "type": "Single"}, {"song": "EL JEFE", "country": "Argentina", "chart": "Billboard Argentina Hot 100", "peak": 43, "weeksAtPeak": 1, "peakDate": "14 oct 2023", "weeksOnChart": 12, "type": "Single"}, {"song": "GIRL LIKE ME", "country": "Argentina", "chart": "Billboard Argentina Hot 100", "peak": 53, "weeksAtPeak": 1, "peakDate": "19 dic 2020", "weeksOnChart": 14, "type": "Single"}, {"song": "Puntería", "country": "Argentina", "chart": "Billboard Argentina Hot 100", "peak": 61, "weeksAtPeak": 1, "peakDate": "13 abr 2024", "weeksOnChart": 6, "type": "Single"}, {"song": "ALGO TÚ", "country": "Argentina", "chart": "Billboard Argentina Hot 100", "peak": 69, "weeksAtPeak": 1, "peakDate": "9 may 2026", "weeksOnChart": 3, "type": "Single"}, {"song": "Inevitable", "country": "Argentina", "chart": "Billboard Argentina Hot 100", "peak": 72, "weeksAtPeak": 1, "peakDate": "22 mar 2025", "weeksOnChart": 1, "type": "Single"}, {"song": "Hips Don't Lie (Anniversary)", "country": "Argentina", "chart": "Billboard Argentina Hot 100", "peak": 73, "weeksAtPeak": 1, "peakDate": "31 ene 2026", "weeksOnChart": 10, "type": "Single"}, {"song": "La Fuerte", "country": "Argentina", "chart": "Billboard Argentina Hot 100", "peak": 95, "weeksAtPeak": 1, "peakDate": "4 jun 2024", "weeksOnChart": 1, "type": "Single"}, {"song": "Dia de Enero", "country": "Argentina", "chart": "Billboard Argentina Hot 100", "peak": 96, "weeksAtPeak": 1, "peakDate": "22 mar 2025", "weeksOnChart": 1, "type": "Single"}, {"song": "Donde Están Los Ladrones?", "country": "Argentina", "chart": "CAPIF Top Albums Quincenal", "peak": 1, "weeksAtPeak": 2, "peakDate": "19 ene 2000", "weeksOnChart": 13, "type": "Album"}, {"song": "MTV Unplugged", "country": "Argentina", "chart": "CAPIF Top Albums Quincenal", "peak": 1, "weeksAtPeak": 1, "peakDate": "31 mar 2000", "weeksOnChart": 15, "type": "Album"}, {"song": "Servicio de lavanderia", "country": "Argentina", "chart": "CAPIF Top Albums Quincenal", "peak": 3, "weeksAtPeak": 5, "peakDate": "30 nov 2001", "weeksOnChart": 19, "type": "Album"}, {"song": "Grandes Exitos", "country": "Argentina", "chart": "CAPIF Top Albums Quincenal", "peak": 9, "weeksAtPeak": 1, "peakDate": "19 nov 2002", "weeksOnChart": 14, "type": "Album"}, {"song": "Fijación Oral", "country": "Argentina", "chart": "CAPIF Top Albums Quincenal", "peak": 2, "weeksAtPeak": 4, "peakDate": "8 ago 2005", "weeksOnChart": 51, "type": "Album"}, {"song": "Oral Fixation, Vol. 2", "country": "Argentina", "chart": "CAPIF Top Albums Quincenal", "peak": 5, "weeksAtPeak": 1, "peakDate": "17 jul 2006", "weeksOnChart": 23, "type": "Album"}, {"song": "Hips Don't Lie", "country": "United States", "chart": "Billboard Hot 100", "peak": 1, "weeksAtPeak": 2, "peakDate": "17 jun 2006", "weeksOnChart": 31, "type": "Single"}, {"song": "Beautiful Liar", "country": "United States", "chart": "Billboard Hot 100", "peak": 3, "weeksAtPeak": 1, "peakDate": "7 abr 2007", "weeksOnChart": 18, "type": "Single"}, {"song": "Whenever, Wherever", "country": "United States", "chart": "Billboard Hot 100", "peak": 6, "weeksAtPeak": 2, "peakDate": "29 dic 2001", "weeksOnChart": 24, "type": "Single"}, {"song": "TQG", "country": "United States", "chart": "Billboard Hot 100", "peak": 7, "weeksAtPeak": 1, "peakDate": "11 mar 2003", "weeksOnChart": 20, "type": "Single"}, {"song": "Underneath Your Clothes", "country": "United States", "chart": "Billboard Hot 100", "peak": 9, "weeksAtPeak": 1, "peakDate": "18 may 2002", "weeksOnChart": 20, "type": "Single"}, {"song": "BZRP Music Sessions, Vol. 53", "country": "United States", "chart": "Billboard Hot 100", "peak": 9, "weeksAtPeak": 1, "peakDate": "28 ene 2023", "weeksOnChart": 15, "type": "Single"}, {"song": "She Wolf", "country": "United States", "chart": "Billboard Hot 100", "peak": 11, "weeksAtPeak": 1, "peakDate": "26 sep 2009", "weeksOnChart": 20, "type": "Single"}, {"song": "Can't Remember To Forget You", "country": "United States", "chart": "Billboard Hot 100", "peak": 15, "weeksAtPeak": 1, "peakDate": "15 feb 2014", "weeksOnChart": 19, "type": "Single"}, {"song": "Dai Dai", "country": "United States", "chart": "Billboard Hot 100", "peak": 17, "weeksAtPeak": 1, "peakDate": "1 ago 2026", "weeksOnChart": 7, "type": "Single"}, {"song": "La Tortura", "country": "United States", "chart": "Billboard Hot 100", "peak": 23, "weeksAtPeak": 1, "peakDate": "24 sep 2005", "weeksOnChart": 31, "type": "Single"}, {"song": "Give it up to me", "country": "United States", "chart": "Billboard Hot 100", "peak": 29, "weeksAtPeak": 2, "peakDate": "12 dic 2009", "weeksOnChart": 11, "type": "Single"}, {"song": "Loca", "country": "United States", "chart": "Billboard Hot 100", "peak": 32, "weeksAtPeak": 1, "peakDate": "6 nov 2010", "weeksOnChart": 11, "type": "Single"}, {"song": "Waka Waka", "country": "United States", "chart": "Billboard Hot 100", "peak": 38, "weeksAtPeak": 1, "peakDate": "3 jul 2010", "weeksOnChart": 18, "type": "Single"}, {"song": "Don't Bother", "country": "United States", "chart": "Billboard Hot 100", "peak": 42, "weeksAtPeak": 1, "peakDate": "17 dic 2005", "weeksOnChart": 9, "type": "Single"}, {"song": "Chantaje", "country": "United States", "chart": "Billboard Hot 100", "peak": 51, "weeksAtPeak": 1, "peakDate": "21 ene 2017", "weeksOnChart": 18, "type": "Single"}, {"song": "Dare (La La La)", "country": "United States", "chart": "Billboard Hot 100", "peak": 53, "weeksAtPeak": 1, "peakDate": "28 jun 2014", "weeksOnChart": 11, "type": "Single"}, {"song": "Objection (Tango)", "country": "United States", "chart": "Billboard Hot 100", "peak": 55, "weeksAtPeak": 1, "peakDate": "28 sep 2002", "weeksOnChart": 9, "type": "Single"}, {"song": "EL JEFE", "country": "United States", "chart": "Billboard Hot 100", "peak": 55, "weeksAtPeak": 1, "peakDate": "7 oct 2023", "weeksOnChart": 1, "type": "Single"}, {"song": "Empire", "country": "United States", "chart": "Billboard Hot 100", "peak": 58, "weeksAtPeak": 1, "peakDate": "12 abr 2014", "weeksOnChart": 12, "type": "Single"}, {"song": "Try Everything", "country": "United States", "chart": "Billboard Hot 100", "peak": 63, "weeksAtPeak": 1, "peakDate": "2 abr 2016", "weeksOnChart": 9, "type": "Single"}, {"song": "Gypsy", "country": "United States", "chart": "Billboard Hot 100", "peak": 65, "weeksAtPeak": 1, "peakDate": "15 may 2010", "weeksOnChart": 3, "type": "Single"}, {"song": "Monotonía", "country": "United States", "chart": "Billboard Hot 100", "peak": 65, "weeksAtPeak": 1, "peakDate": "11 nov 2022", "weeksOnChart": 3, "type": "Single"}, {"song": "GIRL LIKE ME", "country": "United States", "chart": "Billboard Hot 100", "peak": 67, "weeksAtPeak": 1, "peakDate": "27 feb 2021", "weeksOnChart": 13, "type": "Single"}, {"song": "Te Felicito", "country": "United States", "chart": "Billboard Hot 100", "peak": 67, "weeksAtPeak": 1, "peakDate": "25 jun 2022", "weeksOnChart": 8, "type": "Single"}, {"song": "Punteria", "country": "United States", "chart": "Billboard Hot 100", "peak": 72, "weeksAtPeak": 1, "peakDate": "6 abr 2024", "weeksOnChart": 1, "type": "Single"}, {"song": "Zoo", "country": "United States", "chart": "Billboard Hot 100", "peak": 73, "weeksAtPeak": 1, "peakDate": "28 mar 2026", "weeksOnChart": 11, "type": "Single"}, {"song": "Me Enamoré", "country": "United States", "chart": "Billboard Hot 100", "peak": 83, "weeksAtPeak": 1, "peakDate": "17 jun 2017", "weeksOnChart": 2, "type": "Single"}, {"song": "Acrostico", "country": "United States", "chart": "Billboard Hot 100", "peak": 84, "weeksAtPeak": 1, "peakDate": "27 may 2023", "weeksOnChart": 1, "type": "Single"}, {"song": "Get It Started", "country": "United States", "chart": "Billboard Hot 100", "peak": 89, "weeksAtPeak": 1, "peakDate": "28 jul 2012", "weeksOnChart": 2, "type": "Single"}, {"song": "La Bicicleta", "country": "United States", "chart": "Billboard Hot 100", "peak": 95, "weeksAtPeak": 1, "peakDate": "30 jul 2016", "weeksOnChart": 1, "type": "Single"}, {"song": "Perro Fiel", "country": "United States", "chart": "Billboard Hot 100", "peak": 100, "weeksAtPeak": 1, "peakDate": "16 dic 2017", "weeksOnChart": 1, "type": "Single"}, {"song": "Did It Again", "country": "United States", "chart": "Billboard Bubbling Under", "peak": 105, "weeksAtPeak": 1, "peakDate": "12 dic 2009", "weeksOnChart": 3, "type": "Single"}, {"song": "Deja Vu", "country": "United States", "chart": "Billboard Bubbling Under", "peak": 107, "weeksAtPeak": 1, "peakDate": "15 abr 2017", "weeksOnChart": 7, "type": "Single"}, {"song": "Rabiosa", "country": "United States", "chart": "Billboard Bubbling Under", "peak": 110, "weeksAtPeak": 1, "peakDate": "13 ago 2011", "weeksOnChart": 19, "type": "Single"}, {"song": "Soltera", "country": "United States", "chart": "Billboard Bubbling Under", "peak": 113, "weeksAtPeak": 1, "peakDate": "2 nov 2024", "weeksOnChart": 6, "type": "Single"}, {"song": "Eurosummer", "country": "United States", "chart": "Billboard Bubbling Under", "peak": 114, "weeksAtPeak": 1, "peakDate": "16 may 2026", "weeksOnChart": 1, "type": "Single"}, {"song": "Clandestino", "country": "United States", "chart": "Billboard Bubbling Under", "peak": 115, "weeksAtPeak": 1, "peakDate": "18 ago 2018", "weeksOnChart": 4, "type": "Single"}, {"song": "Me Gusta", "country": "United States", "chart": "Billboard Bubbling Under", "peak": 116, "weeksAtPeak": 1, "peakDate": "15 feb 2020", "weeksOnChart": 3, "type": "Single"}, {"song": "(Entre Parentesis)", "country": "United States", "chart": "Billboard Bubbling Under", "peak": 120, "weeksAtPeak": 1, "peakDate": "6 abr 2024", "weeksOnChart": 1, "type": "Single"}, {"song": "DON'T YOU WORRY", "country": "United States", "chart": "Billboard Bubbling Under", "peak": 122, "weeksAtPeak": 1, "peakDate": "17 sep 2022", "weeksOnChart": 1, "type": "Single"}, {"song": "Te Lo Agradezco, Pero No", "country": "United States", "chart": "Billboard Bubbling Under", "peak": 124, "weeksAtPeak": 1, "peakDate": "10 mar 2007", "weeksOnChart": 1, "type": "Single"}, {"song": "SHAKIRA.", "country": "United States", "chart": "Billboard 200", "peak": 2, "weeksAtPeak": 1, "peakDate": "12 abr 2014", "weeksOnChart": 18, "type": "Album"}, {"song": "Laundry Service", "country": "United States", "chart": "Billboard 200", "peak": 3, "weeksAtPeak": 1, "peakDate": "1 dic 2001", "weeksOnChart": 62, "type": "Album"}, {"song": "Fijación Oral, Vol. 1", "country": "United States", "chart": "Billboard 200", "peak": 4, "weeksAtPeak": 1, "peakDate": "25 jun 2005", "weeksOnChart": 33, "type": "Album"}, {"song": "Oral Fixation, Vol. 2", "country": "United States", "chart": "Billboard 200", "peak": 5, "weeksAtPeak": 1, "peakDate": "17 dic 2005", "weeksOnChart": 58, "type": "Album"}, {"song": "Sale El Sol", "country": "United States", "chart": "Billboard 200", "peak": 7, "weeksAtPeak": 1, "peakDate": "6 nov 2010", "weeksOnChart": 20, "type": "Album"}, {"song": "Las Mujeres Ya No Lloran", "country": "United States", "chart": "Billboard 200", "peak": 13, "weeksAtPeak": 1, "peakDate": "6 abr 2024", "weeksOnChart": 5, "type": "Album"}, {"song": "She Wolf", "country": "United States", "chart": "Billboard 200", "peak": 15, "weeksAtPeak": 1, "peakDate": "12 dic 2009", "weeksOnChart": 15, "type": "Album"}, {"song": "El Dorado", "country": "United States", "chart": "Billboard 200", "peak": 15, "weeksAtPeak": 1, "peakDate": "17 jun 2017", "weeksOnChart": 13, "type": "Album"}, {"song": "Live & Off The Record", "country": "United States", "chart": "Billboard 200", "peak": 45, "weeksAtPeak": 1, "peakDate": "17 abr 2004", "weeksOnChart": 6, "type": "Album"}, {"song": "Grandes Exitos", "country": "United States", "chart": "Billboard 200", "peak": 80, "weeksAtPeak": 1, "peakDate": "23 nov 2002", "weeksOnChart": 9, "type": "Album"}, {"song": "Divas Las Vegas", "country": "United States", "chart": "Billboard 200", "peak": 104, "weeksAtPeak": 1, "peakDate": "9 nov 2002", "weeksOnChart": 1, "type": "Album"}, {"song": "Laundry Service: Washed and Dried", "country": "United States", "chart": "Billboard 200", "peak": 112, "weeksAtPeak": 1, "peakDate": "30 nov 2002", "weeksOnChart": 10, "type": "Album"}, {"song": "MTV Unplugged", "country": "United States", "chart": "Billboard 200", "peak": 124, "weeksAtPeak": 1, "peakDate": "18 mar 2000", "weeksOnChart": 8, "type": "Album"}, {"song": "Donde Están Los Ladrones?", "country": "United States", "chart": "Billboard 200", "peak": 131, "weeksAtPeak": 1, "peakDate": "24 oct 1998", "weeksOnChart": 22, "type": "Album"}, {"song": "MTV Unplugged", "country": "United States", "chart": "Billboard Music Video Sales", "peak": 9, "weeksAtPeak": 1, "peakDate": "", "weeksOnChart": 18, "type": "DVD"}, {"song": "Live & Off The Record", "country": "United States", "chart": "Billboard Music Video Sales", "peak": 1, "weeksAtPeak": 3, "peakDate": "", "weeksOnChart": 18, "type": "DVD"}, {"song": "Oral Fixation Tour", "country": "United States", "chart": "Billboard Music Video Sales", "peak": 5, "weeksAtPeak": 1, "peakDate": "", "weeksOnChart": 59, "type": "DVD"}, {"song": "Live From Paris", "country": "United States", "chart": "Billboard Music Video Sales", "peak": 5, "weeksAtPeak": 2, "peakDate": "", "weeksOnChart": 25, "type": "DVD"}]
+;
+
+let sortKey = null;
+let sortDir = 1;
+let view = "ones";
+let countryFilter = "all";
+let typeFilter = "all";
+
+function populateSelect(id, values){
+  const sel = document.getElementById(id);
+  values.forEach(v=>{
+    const opt = document.createElement('option');
+    opt.value = v; opt.textContent = v;
+    sel.appendChild(opt);
+  });
+}
+populateSelect('countryFilter', [...new Set(data.map(r=>r.country))].sort());
+populateSelect('typeFilter', [...new Set(data.map(r=>r.type))].sort());
+
+function renderStats(){
+  const ones = data.filter(r=>r.peak===1);
+  const countries = new Set(data.map(r=>r.country));
+  const maxWeeks = Math.max(...ones.map(r=>r.weeksAtPeak||0));
+  const topSong = ones.find(r=>r.weeksAtPeak===maxWeeks);
+  document.getElementById('stats').innerHTML = `
+    <div class="stat"><span class="n">${ones.length}</span><span class="l">Entradas en Nº1</span></div>
+    <div class="stat"><span class="n">${data.length}</span><span class="l">Entradas totales</span></div>
+    <div class="stat"><span class="n">${countries.size}</span><span class="l">Países cubiertos</span></div>
+    <div class="stat"><span class="n">${maxWeeks}</span><span class="l">Semanas en Nº1 — "${topSong ? topSong.song : ''}"</span></div>
+  `;
+}
+
+function render(){
+  const q = document.getElementById('search').value.trim().toLowerCase();
+  let rows = data.filter(r=>
+    (view === "all" || r.peak === 1) &&
+    (countryFilter === "all" || r.country === countryFilter) &&
+    (typeFilter === "all" || r.type === typeFilter) &&
+    (q === "" || (r.song+" "+r.country+" "+r.chart+" "+r.type).toLowerCase().includes(q))
+  );
+
+  if(sortKey){
+    rows = rows.slice().sort((a,b)=>{
+      let av = a[sortKey], bv = b[sortKey];
+      if(typeof av === "number" || typeof bv === "number"){ av = av ?? -Infinity; bv = bv ?? -Infinity; }
+      else { av = (av||"").toString().toLowerCase(); bv = (bv||"").toString().toLowerCase(); }
+      if(av < bv) return -1*sortDir;
+      if(av > bv) return 1*sortDir;
+      return 0;
+    });
+  }
+
+  const tbody = document.getElementById('rows');
+  const empty = document.getElementById('empty');
+  tbody.innerHTML = "";
+
+  if(rows.length === 0){
+    empty.style.display = "block";
+  } else {
+    empty.style.display = "none";
+    rows.forEach(r=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="song">${r.song}</td>
+        <td>${r.country}</td>
+        <td class="muted">${r.chart}</td>
+        <td><span class="peakpill ${r.peak===1?'one':'other'}">${r.peak ?? '—'}</span></td>
+        <td class="muted">${r.weeksAtPeak ?? '—'}</td>
+        <td class="muted">${r.peakDate || '—'}</td>
+        <td class="muted">${r.weeksOnChart ?? '—'}</td>
+        <td><span class="typepill">${r.type || '—'}</span></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+  document.getElementById('count').textContent = rows.length + " resultado" + (rows.length===1?"":"s");
+}
+
+document.getElementById('search').addEventListener('input', render);
+document.getElementById('countryFilter').addEventListener('change', e=>{ countryFilter = e.target.value; render(); });
+document.getElementById('typeFilter').addEventListener('change', e=>{ typeFilter = e.target.value; render(); });
+
+document.querySelectorAll('.viewtoggle button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.viewtoggle button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    view = btn.dataset.view;
+    render();
+  });
+});
+
+document.querySelectorAll('thead th').forEach(th=>{
+  th.addEventListener('click', ()=>{
+    const key = th.dataset.key;
+    if(sortKey === key){ sortDir *= -1; } else { sortKey = key; sortDir = 1; }
+    render();
+  });
+});
+
+renderStats();
+render();
+</script>
+</body>
+</html>
