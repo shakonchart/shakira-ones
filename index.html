@@ -181,10 +181,21 @@
 
   .table-wrap{ border:1px solid var(--line); overflow-x:auto; background:var(--panel); }
   table{ width:100%; border-collapse:collapse; font-size:13.5px; min-width:600px; }
+  
+  /* Estilos para encabezados ordenables */
   thead th{
     text-align:left; font-family:'JetBrains Mono', monospace; font-size:10.5px; letter-spacing:.05em;
-    text-transform:uppercase; color:var(--diamond); padding:12px 14px; border-bottom:1px solid var(--line); white-space:nowrap;
+    text-transform:uppercase; color:var(--diamond); padding:12px 22px 12px 14px; border-bottom:1px solid var(--line); white-space:nowrap;
+    cursor: pointer; user-select: none; position: relative; transition: background 0.2s;
   }
+  thead th:hover { background: rgba(255,255,255,0.04); }
+  thead th::after {
+    content: "↕"; position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+    font-size: 11px; opacity: 0.3;
+  }
+  thead th.sort-asc::after { content: "↓"; opacity: 1; color: var(--blue); }
+  thead th.sort-desc::after { content: "↑"; opacity: 1; color: var(--blue); }
+
   tbody td{ padding:10px 14px; border-bottom:1px solid var(--line); color:var(--text); }
   tbody tr:last-child td{border-bottom:none;}
   tbody tr:hover{background:var(--panel2);}
@@ -299,7 +310,7 @@ const T = {
     stat4: "Semanas totales en lista", stat5: "Países en la base",
     follow: "Sígueme en",
     colTitle:"Título", colCountry:"País", colChart:"Lista", colPeak:"Peak", colWksPeak:"Sem. en peak",
-    colDate:"", colWksChart:"Sem. en lista",
+    colDate:"Fecha peak", colWksChart:"Sem. en lista",
     groupSongs:"Canciones", groupAlbums:"Álbumes", groupOther:"DVDs",
     empty:"No hay resultados.", results:"resultado",
     footer:"Datos recopilados por un fan, país por país.",
@@ -315,7 +326,7 @@ const T = {
     stat4: "Total weeks charted", stat5: "Countries in database",
     follow: "Follow on",
     colTitle:"Title", colCountry:"Country", colChart:"Chart", colPeak:"Peak", colWksPeak:"Wks at peak",
-    colDate:"", colWksChart:"Wks charted",
+    colDate:"Peak date", colWksChart:"Wks charted",
     groupSongs:"Songs", groupAlbums:"Albums", groupOther:"DVDs",
     empty:"No results.", results:"result",
     footer:"Data collected by a fan, country by country.",
@@ -395,7 +406,6 @@ function sortList(list, kind) {
   });
 }
 
-
 /* ---------------- chart tint helper ---------------- */
 const TINT = "#7fc4ff";
 function chartBreakdown(rows){
@@ -425,7 +435,8 @@ function tableHTML(rows, cols, secondary){
 
   let head = cols.map(c=>{
     let cls = centerCols.includes(c) ? ' class="centered"' : '';
-    return `<th${cls}>${headMap[c]}</th>`;
+    // Agregamos data-col para identificar la columna al hacer click
+    return `<th${cls} data-col="${c}">${headMap[c]}</th>`;
   }).join('');
   
   let body = rows.map(r=>{
@@ -444,7 +455,13 @@ function tableHTML(rows, cols, secondary){
       if(c==='chart') return `<td${cls}>${r.chart}</td>`;
       if(c==='weeksOnChart') return `<td${cls}>${r[c]??'—'}</td>`;
       if(c==='weeksAtPeak') return `<td${cls}>${r[c]??'—'}</td>`;
-      if(c==='peakDate') return `<td${cls}>${r.peakDate ? `<span title="${r.peakDate}" style="cursor:help; font-size:16px;">ℹ️</span>` : '—'}</td>`;
+      if(c==='peakDate') {
+        if(r.peakDate) {
+          const year = getYear(r.peakDate);
+          return `<td${cls}>${year} <span title="${r.peakDate}" style="cursor:help; font-size:14px; margin-left:2px;">ℹ️</span></td>`;
+        }
+        return `<td${cls}>—</td>`;
+      }
       return `<td${cls}>${r[c]??'—'}</td>`;
     }).join('') + '</tr>';
   }).join('');
@@ -527,6 +544,7 @@ function render(){
 }
 
 function attachContentListeners(){
+  // Manejadores para abrir los detalles
   document.querySelectorAll('[data-country]').forEach(el=>{
     el.addEventListener('click', ()=>{ detail = el.dataset.country; render(); });
   });
@@ -535,6 +553,49 @@ function attachContentListeners(){
   });
   const back = document.getElementById('btn-back-tab');
   if(back) back.addEventListener('click', ()=>{ detail = null; render(); });
+
+  // Manejador para ordenar al hacer click en las columnas de las tablas
+  document.querySelectorAll('th[data-col]').forEach(th => {
+    th.addEventListener('click', () => {
+      const table = th.closest('table');
+      const tbody = table.querySelector('tbody');
+      const rows = Array.from(tbody.querySelectorAll('tr'));
+      const colIndex = th.cellIndex;
+      const colKey = th.dataset.col;
+      
+      let dir = 'asc';
+      if (th.classList.contains('sort-asc')) dir = 'desc';
+      
+      // Limpiamos flechitas de otras columnas
+      table.querySelectorAll('th').forEach(h => h.classList.remove('sort-asc', 'sort-desc'));
+      th.classList.add(dir === 'asc' ? 'sort-asc' : 'sort-desc');
+      
+      const numCols = ['peak', 'weeksAtPeak', 'weeksOnChart', 'peakDate'];
+      
+      rows.sort((a, b) => {
+        let textA = a.children[colIndex].textContent.replace('ℹ️', '').trim();
+        let textB = b.children[colIndex].textContent.replace('ℹ️', '').trim();
+        
+        let valA = textA === '—' ? '' : textA;
+        let valB = textB === '—' ? '' : textB;
+        
+        // Mantener siempre los valores vacíos ('—') al final de la tabla
+        if (valA === '' && valB !== '') return 1;
+        if (valA !== '' && valB === '') return -1;
+        if (valA === '' && valB === '') return 0;
+        
+        if (numCols.includes(colKey)) {
+          let numA = parseFloat(valA);
+          let numB = parseFloat(valB);
+          return dir === 'asc' ? numA - numB : numB - numA;
+        } else {
+          return dir === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+        }
+      });
+      
+      tbody.append(...rows);
+    });
+  });
 }
 
 /* ---------------- static text ---------------- */
